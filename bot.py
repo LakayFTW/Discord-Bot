@@ -49,9 +49,13 @@ intents.members = True
 
 bot = commands.Bot(command_prefix="!",intents=intents)
 
-@bot.command()
-async def Hi(ctx):
-    await ctx.send("Hi")
+@bot.command(name='who', help='Who is Doggo?')
+async def who(ctx):
+    await ctx.send("Hi: " + ctx.author.mention + "! My name is Doggo! (Working Title) I am currently in development and will server as a playground to its developer")
+
+@bot.command(name='hi', help='Checks if the bot responds and says hi')
+async def hi(ctx):
+    await ctx.send("Hi: " + ctx.author.mention)
 
 # @bot.command()
 # async def enter(ctx):
