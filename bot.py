@@ -48,6 +48,11 @@ intents.members = True
 
 bot = commands.Bot(command_prefix="!",intents=intents)
 
+# Startup Information
+@bot.event
+async def on_ready():
+    await bot.change_presence(activity=discord.Game("!who"))
+
 @bot.command(name='who', help='Who is Doggo?')
 async def who(ctx):
     await ctx.send("Hi: " + ctx.author.mention + "! My name is Doggo! (Working Title) I am currently in development and will serve as a playground to its developer")
