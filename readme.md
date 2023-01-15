@@ -1,6 +1,23 @@
 # Discord Bot Project
 
-## Requirements
+## Installation
+### Python Requirements
 - Python packages see requirements.txt
-- ffmpeg.exe -> https://github.com/BtbN/FFmpeg-Builds/releases -> choose ffmpeg-master-latest-win64-gpl.zip
-- .env with your bot token
+
+### youtube_dl - ffmpeg.exe
+You will need an ffmpeg.exe in your environment or an path to the .exe
+- ffmpeg.exe -> https://github.com/BtbN/FFmpeg-Builds/releases
+
+### Discord Bot Token
+To start the bot you will need your bot token. You can find it at your "Discord Developer Portal" Dashboard </br>
+Create an .env file
+```
+discord_token = "your_token"
+```
+
+## Functionality
+At the moment the bot can:
+- Explain `!who` the bot is
+- say `!hi`
+- `!join`  and `!leave` voice channels
+- `!play_song`, `!pause`, `!resume`, `!stop` music
