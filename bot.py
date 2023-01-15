@@ -8,7 +8,6 @@ import youtube_dl
 load_dotenv()
 
 DISCORD_TOKEN = os.getenv("discord_token")
-print(DISCORD_TOKEN)
 
 
 # youtube_dl.utils.bug_reports_message = lambda: ''
@@ -70,7 +69,7 @@ async def hi(ctx):
 @bot.command(name='join', help='Tells the bot to join the voice channel')
 async def join(ctx):
     if not ctx.message.author.voice:
-        await ctx.send("{} is not connected to a voice channel".format(ctx.message.author.name))
+        await ctx.send("{} is not connected to a voice channel".format(ctx.message.author.mention))
         return
     else:
         channel = ctx.message.author.voice.channel
@@ -78,29 +77,29 @@ async def join(ctx):
 
 @bot.command(name='leave', help='To make the bot leave the voice channel')
 async def leave(ctx):
-    voice_client = ctx.message.guild.voice_client
+    voice_client = ctx.guild.voice_client
     if voice_client.is_connected():
         await voice_client.disconnect()
     else:
         await ctx.send("The bot is not connected to a voice channel.")
 
+# TODO: add queue
 @bot.command(name='play_song', help='To play song')
 async def play(ctx,url):
     try :
-        if ctx.author.voice:
-            await ctx.message.author.voice.channel.connect()
-        server = ctx.message.guild
-        voice_channel = server.voice_client
+        voice_client = ctx.guild.voice_client
         async with ctx.typing():
             filename = await YTDLSource.from_url(url, loop=bot.loop)
-            voice_channel.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=filename))
+            voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=filename))
+        # TODO: try to get youtube title here
         # await ctx.send('**Now playing:** {}'.format(filename))
     except:
-        await ctx.send("The bot is not connected to a voice channel.")
+        await join(ctx)
+        await play(ctx, url)
 
 @bot.command(name='pause', help='This command pauses the song')
 async def pause(ctx):
-    voice_client = ctx.message.guild.voice_client
+    voice_client = ctx.guild.voice_client
     if voice_client.is_playing():
         voice_client.pause()
     else:
@@ -108,7 +107,7 @@ async def pause(ctx):
     
 @bot.command(name='resume', help='Resumes the song')
 async def resume(ctx):
-    voice_client = ctx.message.guild.voice_client
+    voice_client = ctx.guild.voice_client
     if voice_client.is_paused():
         voice_client.resume()
     else:
@@ -118,7 +117,8 @@ async def resume(ctx):
 async def stop(ctx):
     if ctx.voice_client:
         await ctx.guild.voice_client.disconnect()
-    voice_client = ctx.message.guild.voice_client
+    voice_client = ctx.guild.voice_client
+    # still throws an error
     if voice_client.is_playing():
         voice_client.stop()
     else:
