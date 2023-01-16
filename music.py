@@ -51,7 +51,7 @@ async def leave(ctx):
     else:
         await ctx.send("The bot is not connected to a voice channel.")
 
-async def play(ctx,url):
+async def play(ctx,url,bot):
     try :
         voice_client = ctx.guild.voice_client
         async with ctx.typing():

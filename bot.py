@@ -47,7 +47,7 @@ async def leave(ctx):
 # TODO: add queue
 @bot.command(name='play_song', help='To play song')
 async def play(ctx, url):
-    await music.play(ctx, url)
+    await music.play(ctx, url, bot)
 
 @bot.command(name='pause', help='This command pauses the song')
 async def pause(ctx):
