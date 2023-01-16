@@ -37,11 +37,11 @@ class YTDLSource(discord.PCMVolumeTransformer):
         return filename
 
 async def join(ctx):
-    if not ctx.message.author.voice:
-        await ctx.send("{} is not connected to a voice channel".format(ctx.message.author.mention))
+    if not ctx.author.voice:
+        await ctx.send("{} is not connected to a voice channel".format(ctx.author.mention))
         return
     else:
-        channel = ctx.message.author.voice.channel
+        channel = ctx.author.voice.channel
     await channel.connect()
 
 async def leave(ctx):
@@ -51,7 +51,7 @@ async def leave(ctx):
     else:
         await ctx.send("The bot is not connected to a voice channel.")
 
-async def play(ctx,url):
+async def play(ctx,url, bot):
     try :
         voice_client = ctx.guild.voice_client
         async with ctx.typing():
