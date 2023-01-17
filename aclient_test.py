@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 import os
 from dotenv import load_dotenv
-import music_cog
+import music
 import basic_func
 import test
 
@@ -27,6 +27,10 @@ client = aclient()
 tree = app_commands.CommandTree(client)
 guild = client.guilds
 
+@client.event
+async def on_ready():
+    await client.change_presence(activity=discord.Game("/who"))
+
 @tree.command(name = 'who', description='Who is Doggo?', guilds=guild)
 async def self(interactions: discord.Interaction):
     await interactions.response.send_message("Hi: " + interactions.user.mention + "! My name is Doggo! (Working Title) I am currently in development and will serve as a playground to its developer")
@@ -45,30 +49,30 @@ async def self(interactions: discord.Interaction):
 
 @tree.command(name='play', description='To play song', guilds=guild)
 async def self(interactions: discord.Interaction, url:str):
-    await music_cog.play(interactions, url)
+    await music.play(interactions, url)
 
 @tree.command(name='pause', description='This command pauses the song', guilds=guild)
 async def self(interactions: discord.Interaction):
-    await music_cog.pause(interactions)
+    await music.pause(interactions)
     
 @tree.command(name='resume', description='Resumes the song', guilds=guild)
 async def self(interactions: discord.Interaction):
-    await music_cog.resume(interactions)
+    await music.resume(interactions)
 
 @tree.command(name='stop', description='Stops the song', guilds=guild)
 async def self(interactions: discord.Interaction):
-    await music_cog.leave(interactions)
+    await music.leave(interactions)
 
 @tree.command(name='skip', description='Skips the current song', guilds=guild)
 async def self(interactions: discord.Interaction):
-    await music_cog.skip(interactions)
+    await music.skip(interactions)
 
 @tree.command(name='queue', description='Shows the current song queue', guilds=guild)
 async def self(interactions: discord.Interaction):
-    await music_cog.queue(interactions)
+    await music.queue(interactions)
 
 @tree.command(name='clear', description='Clears the current song queue', guilds=guild)
 async def self(interactions: discord.Interaction):
-    await music_cog.clear(interactions)
+    await music.clear(interactions)
 
 client.run(DISCORD_TOKEN)
