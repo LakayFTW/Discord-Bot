@@ -1,88 +1,125 @@
-import youtube_dl
-import asyncio
+# Code Credits: github.com/pawel02
+
 import discord
-from discord.ext import commands
+from youtube_dl import YoutubeDL
+import basic_func
 
-# youtube_dl.utils.bug_reports_message = lambda: ''
-ytdl_format_options = {
-    'format': 'bestaudio/best',
-    'restrictfilenames': True,
-    'noplaylist': True,
-    'nocheckcertificate': True,
-    'ignoreerrors': False,
-    'logtostderr': False,
-    'quiet': True,
-    'no_warnings': True,
-    'default_search': 'auto',
-    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
-}
-ffmpeg_options = {
-    'options': '-vn'
-}
-ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
-class YTDLSource(discord.PCMVolumeTransformer):
-    def __init__(self, source, *, data, volume=0.5):
-        super().__init__(source, volume)
-        self.data = data
-        self.title = data.get('title')
-        self.url = ""
-    @classmethod
-    async def from_url(cls, url, *, loop=None, stream=False):
-        loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
-        if 'entries' in data:
-            # take first item from a playlist
-            data = data['entries'][0]
-        filename = data['title'] if stream else ytdl.prepare_filename(data)
-        return filename
+FFMPEG_OPTIONS = {
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+YDL_OPTIONS = {'format': 'bestaudio/best', 'noplaylist': 'True'}
+music_queue = []
+is_playing = False
+is_paused = False
 
-async def join(ctx):
-    if not ctx.author.voice:
-        await ctx.send("{} is not connected to a voice channel".format(ctx.author.mention))
-        return
+async def play_next(interactions):
+    global is_playing
+    global is_paused
+    if len(music_queue) > 0:
+        print("HALLO!")
+        voice = interactions.guild.voice_client
+        is_playing = True
+
+        # remove the first element cuz playing
+        music_queue.pop(0)
+
+        # get first url
+        m_url = music_queue[0]
+        # ** collects all keyword arguments in a dictionary
+        voice.play(await discord.FFmpegOpusAudio.from_probe(
+            m_url, **FFMPEG_OPTIONS), after=lambda e: play_next())
     else:
-        channel = ctx.author.voice.channel
-    await channel.connect()
+        is_playing = False
+        await interactions.guild.voice_client.disconnect()
+        await interactions.response.send_message("No more songs in queue! Disconnecting")
 
-async def leave(ctx):
-    voice_client = ctx.guild.voice_client
-    if voice_client.is_connected():
-        await voice_client.disconnect()
+async def disc(interactions):
+    interactions.guild.voice_client.disconnect()
+
+async def play(interactions, args):
+    global is_playing
+    global is_paused
+    url1 = args.split(" ")
+    url2 = url1[0].replace("[","")
+    url = url2.replace("]","")
+    
+    channel = interactions.user.voice.channel
+    voice = interactions.guild.voice_client
+    #if bot is already in a channel -> move
+    if voice and voice.is_connected():
+        await voice.move_to(channel)
+    elif not channel:
+        await interactions.response.send_message("You are not connected to a channel!")
     else:
-        await ctx.send("The bot is not connected to a voice channel.")
+        #if bot is not already in channel connect
+        voice = await channel.connect()
+    ydl = YoutubeDL(YDL_OPTIONS)
+    with ydl:
+        info = ydl.extract_info(url, download=False)
+        I_URL = info['formats'][0]['url']
+        # print(I_URL)
+        source = await discord.FFmpegOpusAudio.from_probe(I_URL, **FFMPEG_OPTIONS)
+        if is_playing == False:
+            print("isplaying false")
+            music_queue.append(I_URL)
+            voice.play(source, after=lambda e: play_next(interactions))
+            is_playing = True
+        else:
+            print("isplaying true")
+            music_queue.append(I_URL)
 
-async def play(ctx,url, bot):
-    try :
-        voice_client = ctx.guild.voice_client
-        async with ctx.typing():
-            filename = await YTDLSource.from_url(url, loop=bot.loop)
-            voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=filename))
-        # TODO: try to get youtube title here
-        # await ctx.send('**Now playing:** {}'.format(filename))
-    except:
-        await join(ctx)
-        await play(ctx, url)
+async def pause(interactions):
+    global is_playing
+    global is_paused
+    if is_playing:
+        is_playing = False
+        is_paused = True
+        interactions.guild.voice_client.pause()
+    elif is_paused:
+        is_playing = True
+        is_paused = False
+        interactions.guild.voice_client.resume()
 
-async def pause(ctx):
-    voice_client = ctx.guild.voice_client
-    if voice_client.is_playing():
-        voice_client.pause()
+
+async def resume(interactions):
+    global is_playing
+    global is_paused
+    if is_paused:
+        is_playing = True
+        is_paused = False
+        interactions.guild.voice_client.resume()
+
+
+async def skip(interactions):
+    if interactions.guild.voice_client != None and interactions.guild.voice_client:
+        interactions.guild.voice_client.stop()
+        await play_next(interactions)
+
+
+async def queue(interactions):
+    retval = ""
+    for i in range(0, len(music_queue)):
+        # display a max of 5 songs in queue
+        if (i > 4):
+            break
+        retval += music_queue[i] + "\n"
+    if retval != "":
+        await interactions.response.send_message(retval)
     else:
-        await ctx.send("The bot is not playing anything at the moment.")
+        await interactions.response.send_message("No music in queue")
 
-async def resume(ctx):
-    voice_client = ctx.guild.voice_client
-    if voice_client.is_paused():
-        voice_client.resume()
-    else:
-        await ctx.send("The bot was not playing anything before this. Use play_song command")#
 
-async def stop(ctx):
-    if ctx.voice_client:
-        await ctx.guild.voice_client.disconnect()
-    voice_client = ctx.guild.voice_client
-    # still throws an error
-    if voice_client.is_playing():
-        voice_client.stop()
-    else:
-        await ctx.send("The bot is not playing anything at the moment.")
+async def clear(interactions):
+    global is_playing
+    global music_queue
+    if interactions.guild.voice_client != None and is_playing:
+        interactions.guild.voice_client.stop()
+    music_queue = []
+    await interactions.response.send_message("Music queue cleared")
+
+
+async def leave(interactions):
+    global is_playing
+    global is_paused
+    is_playing = False
+    is_paused = False
+    await interactions.guild.voice_client.disconnect()

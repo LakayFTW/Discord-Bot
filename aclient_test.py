@@ -2,7 +2,9 @@ import discord
 from discord import app_commands
 import os
 from dotenv import load_dotenv
-import music
+import music_cog
+import basic_func
+import test
 
 intents = discord.Intents.all()
 intents.members = True
@@ -30,36 +32,43 @@ async def self(interactions: discord.Interaction):
     await interactions.response.send_message("Hi: " + interactions.user.mention + "! My name is Doggo! (Working Title) I am currently in development and will serve as a playground to its developer")
 
 @tree.command(name = 'hi', description='Checks if the bot responds and says hi', guilds=guild)
-async def hi(interactions: discord.Interaction):
+async def self(interactions: discord.Interaction):
     await interactions.response.send_message("Hi: " + interactions.user.mention)
 
-# @tree.command(name = "test", description= "testing", guilds=guild)
-# async def self(interactions: discord.Interaction, name:str):
-#     await interactions.response.send_message(f"Hello {name}")
+@tree.command(name='join', description='Tells the bot to join the voice channel', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await basic_func.join(interactions)
 
-# @tree.command(name='join', description='Tells the bot to join the voice channel', guilds=guild)
-# async def join(ctx):
-#     await music.join(ctx)
+@tree.command(name='leave', description='To make the bot leave the voice channel', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await basic_func.leave(interactions)
 
-# @tree.command(name='leave', description='To make the bot leave the voice channel', guilds=guild)
-# async def leave(ctx):
-#     await music.leave(ctx)
+@tree.command(name='play', description='To play song', guilds=guild)
+async def self(interactions: discord.Interaction, url:str):
+    await music_cog.play(interactions, url)
 
-# # TODO: add queue
-# @tree.command(name='play_song', help='To play song')
-# async def play(ctx, url):
-#     await music.play(ctx, url)
-
-# @tree.command(name='pause', help='This command pauses the song')
-# async def pause(ctx):
-#     await music.pause(ctx)
+@tree.command(name='pause', description='This command pauses the song', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await music_cog.pause(interactions)
     
-# @tree.command(name='resume', help='Resumes the song')
-# async def resume(ctx):
-#     await music.resume(ctx)
+@tree.command(name='resume', description='Resumes the song', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await music_cog.resume(interactions)
 
-# @tree.command(name='stop', help='Stops the song')
-# async def stop(ctx):
-#     await music.stop(ctx)
+@tree.command(name='stop', description='Stops the song', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await music_cog.leave(interactions)
+
+@tree.command(name='skip', description='Skips the current song', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await music_cog.skip(interactions)
+
+@tree.command(name='queue', description='Shows the current song queue', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await music_cog.queue(interactions)
+
+@tree.command(name='clear', description='Clears the current song queue', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await music_cog.clear(interactions)
 
 client.run(DISCORD_TOKEN)
