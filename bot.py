@@ -1,64 +1,77 @@
 import discord
-from discord.ext import commands
+from discord import app_commands
 import os
 from dotenv import load_dotenv
 import music
-
-load_dotenv()
-
-DISCORD_TOKEN = os.getenv("discord_token")
+import basic_func
 
 intents = discord.Intents.all()
 intents.members = True
+load_dotenv()
+DISCORD_TOKEN = os.getenv("discord_token")
 
-bot = commands.Bot(command_prefix="!",intents=intents)
+class aclient(discord.Client):
+    def __init__(self):
+        super().__init__(intents=intents)
+        self.synced = False
 
-# Startup Information
-@bot.event
+    async def on_ready(self):
+        await self.wait_until_ready()
+        if not self.synced:
+            await tree.sync()
+            self.synced = True
+        print(f"We have logged in as {self.user}.")
+
+client = aclient()
+tree = app_commands.CommandTree(client)
+guild = client.guilds
+
+@client.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game("!who"))
+    await client.change_presence(activity=discord.Game("/who"))
 
-@bot.command(name='who', help='Who is Doggo?')
-async def who(ctx):
-    await ctx.send("Hi: " + ctx.author.mention + "! My name is Doggo! (Working Title) I am currently in development and will serve as a playground to its developer")
+@tree.command(name = 'who', description='Who is Doggo?', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await interactions.response.send_message("Hi: " + interactions.user.mention + "! My name is Doggo! (Working Title) I am currently in development and will serve as a playground to its developer", ephemeral=True)
 
-@bot.command(name='hi', help='Checks if the bot responds and says hi')
-async def hi(ctx):
-    await ctx.send("Hi: " + ctx.author.mention)
+@tree.command(name = 'hi', description='If you say Hi, Doggo say Hi', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await interactions.response.send_message("Hi: " + interactions.user.mention, ephemeral=True)
 
-# @bot.command()
-# async def enter(ctx):
-#     if ctx.author.voice:
-#         await ctx.message.author.voice.channel.connect()
+@tree.command(name='join', description='Doggo will join voice channel', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await basic_func.join(interactions)
 
-# @bot.command()
-# async def leave(ctx):
-#     if ctx.voice_client:
-#         await ctx.guild.voice_client.disconnect()
+@tree.command(name='leave', description='Doggo will leave voice channel', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await basic_func.leave(interactions)
 
-@bot.command(name='join', help='Tells the bot to join the voice channel')
-async def join(ctx):
-    await music.join(ctx)
+@tree.command(name='play', description='Give Doggo a YouTube url and Doggo will play music ', guilds=guild)
+async def self(interactions: discord.Interaction, url:str):
+    await music.play(interactions, url)
 
-@bot.command(name='leave', help='To make the bot leave the voice channel')
-async def leave(ctx):
-    await music.leave(ctx)
-
-# TODO: add queue
-@bot.command(name='play_song', help='To play song')
-async def play(ctx, url):
-    await music.play(ctx, url, bot)
-
-@bot.command(name='pause', help='This command pauses the song')
-async def pause(ctx):
-    await music.pause(ctx)
+@tree.command(name='pause', description='Doggo will pause his music', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await music.pause(interactions)
     
-@bot.command(name='resume', help='Resumes the song')
-async def resume(ctx):
-    await music.resume(ctx)
+@tree.command(name='resume', description='Doggo will resume his music', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await music.resume(interactions)
 
-@bot.command(name='stop', help='Stops the song')
-async def stop(ctx):
-    await music.stop(ctx)
+@tree.command(name='stop', description='Doggo stops play music', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await music.leave(interactions)
 
-bot.run(DISCORD_TOKEN)
+@tree.command(name='skip', description='Doggo skips current song', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await music.skip(interactions)
+
+@tree.command(name='queue', description='Doggo shows current song queue', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await music.queue(interactions)
+
+@tree.command(name='clear', description='Doggo clears current song queue', guilds=guild)
+async def self(interactions: discord.Interaction):
+    await music.clear(interactions)
+
+client.run(DISCORD_TOKEN)
