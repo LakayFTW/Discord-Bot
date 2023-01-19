@@ -4,7 +4,6 @@ import os
 from dotenv import load_dotenv
 import music
 import basic_func
-import test
 
 intents = discord.Intents.all()
 intents.members = True

@@ -1,4 +1,4 @@
-# Code Credits: github.com/pawel02
+# Code Credits: github.com/pawel02 - Code got changed to my needs but is inspired by them
 
 import discord
 from youtube_dl import YoutubeDL
