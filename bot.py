@@ -58,9 +58,10 @@ async def self(interactions: discord.Interaction):
 async def self(interactions: discord.Interaction):
     await music.resume(interactions)
 
-@tree.command(name='stop', description='Doggo stops play music', guilds=guild)
+@tree.command(name='stop', description='Doggo stops music', guilds=guild)
 async def self(interactions: discord.Interaction):
     await music.leave(interactions)
+    await interactions.response.send_message("OK! I am going to stop", ephemeral=True)
 
 @tree.command(name='skip', description='Doggo skips current song', guilds=guild)
 async def self(interactions: discord.Interaction):
