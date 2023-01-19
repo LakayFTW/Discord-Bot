@@ -2,7 +2,6 @@
 
 import discord
 from youtube_dl import YoutubeDL
-import basic_func
 
 FFMPEG_OPTIONS = {
     'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
@@ -58,12 +57,10 @@ async def play(interactions, args):
         # print(I_URL)
         source = await discord.FFmpegOpusAudio.from_probe(I_URL, **FFMPEG_OPTIONS)
         if is_playing == False:
-            print("isplaying false")
             music_queue.append(I_URL)
             voice.play(source, after=lambda e: play_next(interactions))
             is_playing = True
         else:
-            print("isplaying true")
             music_queue.append(I_URL)
 
 async def pause(interactions):
