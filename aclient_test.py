@@ -33,45 +33,45 @@ async def on_ready():
 
 @tree.command(name = 'who', description='Who is Doggo?', guilds=guild)
 async def self(interactions: discord.Interaction):
-    await interactions.response.send_message("Hi: " + interactions.user.mention + "! My name is Doggo! (Working Title) I am currently in development and will serve as a playground to its developer")
+    await interactions.response.send_message("Hi: " + interactions.user.mention + "! My name is Doggo! (Working Title) I am currently in development and will serve as a playground to its developer", ephemeral=True)
 
-@tree.command(name = 'hi', description='Checks if the bot responds and says hi', guilds=guild)
+@tree.command(name = 'hi', description='If you say Hi, Doggo say Hi', guilds=guild)
 async def self(interactions: discord.Interaction):
-    await interactions.response.send_message("Hi: " + interactions.user.mention)
+    await interactions.response.send_message("Hi: " + interactions.user.mention, ephemeral=True)
 
-@tree.command(name='join', description='Tells the bot to join the voice channel', guilds=guild)
+@tree.command(name='join', description='Doggo will join voice channel', guilds=guild)
 async def self(interactions: discord.Interaction):
     await basic_func.join(interactions)
 
-@tree.command(name='leave', description='To make the bot leave the voice channel', guilds=guild)
+@tree.command(name='leave', description='Doggo will leave voice channel', guilds=guild)
 async def self(interactions: discord.Interaction):
     await basic_func.leave(interactions)
 
-@tree.command(name='play', description='To play song', guilds=guild)
+@tree.command(name='play', description='Give Doggo a YouTube url and Doggo will play music ', guilds=guild)
 async def self(interactions: discord.Interaction, url:str):
     await music.play(interactions, url)
 
-@tree.command(name='pause', description='This command pauses the song', guilds=guild)
+@tree.command(name='pause', description='Doggo will pause his music', guilds=guild)
 async def self(interactions: discord.Interaction):
     await music.pause(interactions)
     
-@tree.command(name='resume', description='Resumes the song', guilds=guild)
+@tree.command(name='resume', description='Doggo will resume his music', guilds=guild)
 async def self(interactions: discord.Interaction):
     await music.resume(interactions)
 
-@tree.command(name='stop', description='Stops the song', guilds=guild)
+@tree.command(name='stop', description='Doggo stops play music', guilds=guild)
 async def self(interactions: discord.Interaction):
     await music.leave(interactions)
 
-@tree.command(name='skip', description='Skips the current song', guilds=guild)
+@tree.command(name='skip', description='Doggo skips current song', guilds=guild)
 async def self(interactions: discord.Interaction):
     await music.skip(interactions)
 
-@tree.command(name='queue', description='Shows the current song queue', guilds=guild)
+@tree.command(name='queue', description='Doggo shows current song queue', guilds=guild)
 async def self(interactions: discord.Interaction):
     await music.queue(interactions)
 
-@tree.command(name='clear', description='Clears the current song queue', guilds=guild)
+@tree.command(name='clear', description='Doggo clears current song queue', guilds=guild)
 async def self(interactions: discord.Interaction):
     await music.clear(interactions)
 

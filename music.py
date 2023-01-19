@@ -15,7 +15,6 @@ async def play_next(interactions):
     global is_playing
     global is_paused
     if len(music_queue) > 0:
-        print("HALLO!")
         voice = interactions.guild.voice_client
         is_playing = True
 
@@ -48,7 +47,7 @@ async def play(interactions, args):
     if voice and voice.is_connected():
         await voice.move_to(channel)
     elif not channel:
-        await interactions.response.send_message("You are not connected to a channel!")
+        await interactions.response.send_message("You are not connected to a channel!", ephemeral=True)
     else:
         #if bot is not already in channel connect
         voice = await channel.connect()
