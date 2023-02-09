@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 import music
 import basic_func
+import extended_func
 
 intents = discord.Intents.all()
 intents.members = True
@@ -46,7 +47,7 @@ async def self(interactions: discord.Interaction):
 async def self(interactions: discord.Interaction):
     await basic_func.leave(interactions)
 
-@tree.command(name='play', description='Give Doggo a YouTube url and Doggo will play music ', guilds=guild)
+@tree.command(name='play_song', description='Give Doggo a YouTube url and Doggo will play music ', guilds=guild)
 async def self(interactions: discord.Interaction, url:str):
     await music.play(interactions, url)
 
@@ -71,8 +72,12 @@ async def self(interactions: discord.Interaction):
 async def self(interactions: discord.Interaction):
     await music.queue(interactions)
 
-@tree.command(name='clear', description='Doggo clears current song queue', guilds=guild)
+@tree.command(name='clear_queue', description='Doggo clears current song queue', guilds=guild)
 async def self(interactions: discord.Interaction):
     await music.clear(interactions)
+
+@tree.command(name='purge_chat', description='Removes all sent messages from this Chat', guilds=guild)
+async def self(interactions: discord.Interaction, amount:int):
+    await extended_func.purge(interactions, amount)
 
 client.run(DISCORD_TOKEN)
